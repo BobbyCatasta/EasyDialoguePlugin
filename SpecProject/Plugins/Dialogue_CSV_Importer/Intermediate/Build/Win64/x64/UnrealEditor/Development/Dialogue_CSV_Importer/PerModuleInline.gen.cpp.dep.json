@@ -1,0 +1,14 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\plugins\\dialogue_csv_importer\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\dialogue_csv_importer\\permoduleinline.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\intermediate\\build\\win64\\x64\\specprojecteditor\\development\\unrealed\\sharedpch.unrealed.cpp20.h.pch",
+        "Includes": [
+            "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\plugins\\dialogue_csv_importer\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\dialogue_csv_importer\\definitions.dialogue_csv_importer.h",
+            "f:\\epic games\\ue_5.5\\engine\\source\\runtime\\core\\public\\hal\\permoduleinline.inl"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

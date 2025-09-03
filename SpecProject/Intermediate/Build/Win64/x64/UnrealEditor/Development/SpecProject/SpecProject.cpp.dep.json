@@ -1,0 +1,14 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\source\\specproject\\specproject.cpp",
+        "ProvidedModule": "",
+        "PCH": "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\intermediate\\build\\win64\\x64\\specprojecteditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.cpp20.h.pch",
+        "Includes": [
+            "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\specproject\\definitions.specproject.h",
+            "f:\\event horizon\\gamedev projects\\external repos gamedev\\specializationproject\\specproject\\source\\specproject\\specproject.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
