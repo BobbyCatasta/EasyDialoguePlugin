@@ -2,13 +2,13 @@
 	"RemapUnityFiles": 
 	{
 		"Module.Dialogue_CSV_Importer.cpp.obj": [
-			"PerModuleInline.gen.cpp.obj",
-			"Dialogue_CSV_Importer.cpp.obj",
 			"DialogueCSVTool.gen.cpp.obj",
 			"Dialogue_CSV_Importer.init.gen.cpp.obj",
 			"FDialogueRow.gen.cpp.obj",
-			"DialogueCSVTool.cpp.obj",
-			"FDialogueRow.cpp.obj"
+			"PerModuleInline.gen.cpp.obj",
+			"Dialogue_CSV_Importer.cpp.obj",
+			"FDialogueRow.cpp.obj",
+			"DialogueCSVTool.cpp.obj"
 		]
 	}
 }

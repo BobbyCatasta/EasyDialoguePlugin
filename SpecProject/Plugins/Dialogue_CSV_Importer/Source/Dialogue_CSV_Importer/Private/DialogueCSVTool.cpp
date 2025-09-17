@@ -41,15 +41,11 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 	//UE_LOG(LogTemp, Log, TEXT("%s"), *CSVContent);
 
 	TArray<FDialogueRow> DialogueRows = ParseCSV(CSVContent);
-	if (DialogueRows.Num() <= 0)
+	
+	for (FDialogueRow Row : DialogueRows)
 	{
-		UE_LOG(LogTemp, Log, TEXT("%s"),*FString::FromInt(DialogueRows.Num()));
-		return;
+		UE_LOG(LogTemp, Log, TEXT("%s"),*Row.Scene);
 	}
-	// for (FDialogueRow Row : DialogueRows)
-	// {
-	// 	UE_LOG(LogTemp, Log, TEXT("%s"),*Row.Scene);
-	// }
 
 	// Esempio: popola Scenes / Character
 	// Tables  (fare cosa simile con le datatable, tabella per scene, tabella per dialoghi personaggi etc...)
@@ -63,25 +59,22 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString Content)
 	Content.ParseIntoArrayLines(Lines); // divide per riga
 
 	if (Lines.Num() <= 1)
-	{
-		UE_LOG(LogTemp, Log, TEXT("No Lines Soz."));
 		return ParsedRows;
-	}
 
-	// Assumiamo che la prima riga siano le intestazioni
+	// 
 	for (int32 i = 1; i < Lines.Num(); i++)
 	{
 		FString Line = Lines[i];
 
 		// Split gestendo le virgolette
 		TArray<FString> Cells;
-		Line.ParseIntoArray(Cells, TEXT(","), true);
+		Line.ParseIntoArray(Cells, TEXT(","), false);
 
 		FDialogueRow Row;
 		
-		Row.Scene = Cells[0].Replace(TEXT("\""), TEXT(""));
-		Row.Id = Cells[1].Replace(TEXT("\""), TEXT(""));
-		Row.Speaker = Cells[2].Replace(TEXT("\""), TEXT(""));
+		Row.Scene = Cells[0];
+		Row.Id = Cells[1];
+		Row.Speaker = Cells[2];
 		
 		ParsedRows.Add(Row);
 	}
