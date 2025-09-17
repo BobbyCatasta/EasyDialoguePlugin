@@ -286,6 +286,7 @@
 /I "Editor\SceneDepthPickerMode\Public"
 /I "..\Intermediate\Build\Win64\UnrealEditor\Inc\AnimationEditMode\UHT"
 /I "Editor\AnimationEditMode\Public"
+/I "F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\UnrealEditor\Inc\Dialogue_CSV_Importer\UHT"
 /I "F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Source"
 /I "F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Source\Dialogue_CSV_Importer\Public"
 /external:W0

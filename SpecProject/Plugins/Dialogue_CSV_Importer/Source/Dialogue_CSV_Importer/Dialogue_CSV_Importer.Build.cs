@@ -2,7 +2,7 @@
 
 using UnrealBuildTool;
 
-public class Dialogue_CSV_Importer : ModuleRules
+public class 	Dialogue_CSV_Importer : ModuleRules
 {
 	public Dialogue_CSV_Importer(ReadOnlyTargetRules Target) : base(Target)
 	{
@@ -26,6 +26,7 @@ public class Dialogue_CSV_Importer : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Http"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,6 +39,7 @@ public class Dialogue_CSV_Importer : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"Http",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

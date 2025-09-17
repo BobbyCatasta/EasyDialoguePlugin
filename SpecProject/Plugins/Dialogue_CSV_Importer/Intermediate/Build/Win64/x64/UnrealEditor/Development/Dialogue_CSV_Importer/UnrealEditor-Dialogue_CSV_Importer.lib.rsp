@@ -6,8 +6,12 @@
 /NAME:"UnrealEditor-Dialogue_CSV_Importer.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Intermediate\Build\Win64\x64\SpecProjectEditor\Development\UnrealEd\SharedPCH.UnrealEd.Cpp20.h.obj"
-"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\Dialogue_CSV_Importer.cpp.obj"
-"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\PerModuleInline.gen.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Intermediate\Build\Win64\x64\SpecProjectEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\Module.Dialogue_CSV_Importer.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\DialogueCSVTool.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\FDialogueRow.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\DialogueCSVTool.gen.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\Dialogue_CSV_Importer.init.gen.cpp.obj"
+"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\FDialogueRow.gen.cpp.obj"
 "F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\Default.rc2.res"
 /OUT:"F:\Event Horizon\GameDev Projects\External Repos GameDev\SpecializationProject\SpecProject\Plugins\Dialogue_CSV_Importer\Intermediate\Build\Win64\x64\UnrealEditor\Development\Dialogue_CSV_Importer\UnrealEditor-Dialogue_CSV_Importer.lib"
