@@ -39,7 +39,8 @@ public class 	Dialogue_CSV_Importer : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"Http",
+				"Http", 
+				"EditorScriptingUtilities",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

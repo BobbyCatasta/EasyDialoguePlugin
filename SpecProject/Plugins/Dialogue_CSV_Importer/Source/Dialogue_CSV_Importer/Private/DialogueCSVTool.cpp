@@ -3,28 +3,42 @@
 
 #include "DialogueCSVTool.h"
 #include "HttpModule.h"
-#include "Http.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "Factories/DataTableFactory.h"
+#include "EditorAssetLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Structs/FDialogueRow.h"
 
 // Sets default values for this component's properties
 UDialogueCSVTool::UDialogueCSVTool() {}
 
-
-void UDialogueCSVTool::DownloadCSVFromURL(const FString& URL)
+void UDialogueCSVTool::PostInitProperties()
 {
-	// Ottieni modulo HTTP
+	UObject::PostInitProperties();
+
+	// Set the Data Table to create FDialogueRow Tables
+	
+	// DataTableFactory = NewObject<UDataTableFactory>();
+	// DataTableFactory->Struct = FDialogueRow::StaticStruct();
+}
+
+
+void UDialogueCSVTool::DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL)
+{
+	PackagePath = DataTablePath;
+	DataTableName = AssetName;
+	
 	FHttpModule* Http = &FHttpModule::Get();
 
-	// Crea richiesta
+	// HTTP Request
 	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
 	Request->SetURL(URL);
 	Request->SetVerb("GET");
 
-	// Callback alla fine del download
+	// Add Callback at the end of the request
 	Request->OnProcessRequestComplete().BindUObject(this, &UDialogueCSVTool::OnCSVDownloaded);
 
-	// Invia richiesta
+	// Send Request
 	Request->ProcessRequest();
 }
 
@@ -37,22 +51,20 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 	}
 
 	FString CSVContent = UTF8_TO_TCHAR(Response->GetContent().GetData());
-	UE_LOG(LogTemp, Log, TEXT("CSV downloaded correctly."));
-	//UE_LOG(LogTemp, Log, TEXT("%s"), *CSVContent);
+	int32 FoundIndex = CSVContent.Find(TEXT("END TABLE"), ESearchCase::IgnoreCase, ESearchDir::FromStart);
+	if (FoundIndex != INDEX_NONE)
+		CSVContent = CSVContent.Left(FoundIndex);
+	
+	UE_LOG(LogTemp, Log, TEXT("CSV downloaded correctly. Now Creating Data Table..."));
 
 	TArray<FDialogueRow> DialogueRows = ParseCSV(CSVContent);
+	UDataTable* DataTable;
+	// To change, not based by AssetName but based on GID of the Table, create a Table Named based on gid
+	CreateDialogueDataTableAsset(DataTable, DialogueRows);
 	
-	for (FDialogueRow Row : DialogueRows)
-	{
-		UE_LOG(LogTemp, Log, TEXT("%s"),*Row.Scene);
-	}
-
-	// Esempio: popola Scenes / Character
-	// Tables  (fare cosa simile con le datatable, tabella per scene, tabella per dialoghi personaggi etc...)
-	//PopulateDialogMaps(DialogRows);
 }
 
-TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString Content)
+TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 {
 	TArray<FDialogueRow> ParsedRows;
 	TArray<FString> Lines;
@@ -66,19 +78,65 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString Content)
 	{
 		FString Line = Lines[i];
 
-		// Split gestendo le virgolette
+		// Split delle Celle
 		TArray<FString> Cells;
 		Line.ParseIntoArray(Cells, TEXT(","), false);
 
-		FDialogueRow Row;
+		// Riempimento Riga di Dialogo
+		FDialogueRow DialogueRow;
 		
-		Row.Scene = Cells[0];
-		Row.Id = Cells[1];
-		Row.Speaker = Cells[2];
+		DialogueRow.Scene = Cells[0];
+		DialogueRow.Id = Cells[1];
+		DialogueRow.Speaker = Cells[2];
+		DialogueRow.Dialogue = FText::FromString(Cells[3]);
+		DialogueRow.TextSpeed = FCString::Atof(*Cells[4]);
 		
-		ParsedRows.Add(Row);
+		ParsedRows.Add(DialogueRow);
 	}
 
 	return ParsedRows;
+}
+
+void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArray<FDialogueRow> DialogueRows)
+{
+	if (!PackagePath.StartsWith(TEXT("/Game")))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ERROR : The package path must start with /Game"));
+		return;
+	}
+	if (DataTableName.IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("ERROR : Insert a name for the Data Table"));
+		return;
+	}
+	FString PackageName = PackagePath + TEXT("/") + DataTableName;
+	UPackage* Package = CreatePackage(*PackageName);
+	if (!Package)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ERROR : Error creating the package, try again"));
+	}
+
+	OutTable = NewObject<UDataTable>(Package, *DataTableName, RF_Public | RF_Standalone);
+	OutTable->RowStruct = FDialogueRow::StaticStruct();
+
+	for (FDialogueRow Row : DialogueRows)
+	{
+		OutTable->AddRow(FName(Row.Scene),Row);
+	}
+	// Registra l’asset nel Content Browser
+	FAssetRegistryModule::AssetCreated(OutTable);
+	
+	OutTable->MarkPackageDirty();
+
+	FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+
+	// Check if the asset already exists in the project
+	if (UEditorAssetLibrary::DoesAssetExist(FilePath))
+		UEditorAssetLibrary::DeleteAsset(FilePath);
+	
+	bool bSaved = UPackage::SavePackage(Package, OutTable, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
+
+	if (bSaved)
+		UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in : %s"), *PackagePath);
 }
 

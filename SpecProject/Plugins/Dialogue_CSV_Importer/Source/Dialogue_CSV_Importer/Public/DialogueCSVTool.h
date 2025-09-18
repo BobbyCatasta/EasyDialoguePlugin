@@ -19,15 +19,26 @@ public:
 	// Sets default values for this component's properties
 	UDialogueCSVTool();
 
+	virtual void PostInitProperties() override;
+
 private:
 
 	//
+	FString DataTableName;
+
+	//
+	FString PackagePath;
+	
+	//
 	UFUNCTION(BlueprintCallable,CallInEditor)
-	void DownloadCSVFromURL(const FString& URL);
+	void DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL);
 
 	//
 	void OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	//
-	TArray<FDialogueRow> ParseCSV(const FString Content);
+	TArray<FDialogueRow> ParseCSV(const FString& Content);
+
+	//
+	void CreateDialogueDataTableAsset(UDataTable*& OutTable,TArray<FDialogueRow> DialogueRows);
 };
