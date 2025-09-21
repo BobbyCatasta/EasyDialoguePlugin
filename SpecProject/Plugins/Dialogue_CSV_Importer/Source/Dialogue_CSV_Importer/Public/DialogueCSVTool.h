@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Interfaces/IHttpRequest.h"
@@ -28,9 +27,10 @@ private:
 
 	//
 	FString PackagePath;
-	
+
+#if WITH_EDITOR
 	//
-	UFUNCTION(BlueprintCallable,CallInEditor)
+	UFUNCTION(BlueprintCallable,CallInEditor, Category = "DataTable Creation")
 	void DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL);
 
 	//
@@ -41,4 +41,5 @@ private:
 
 	//
 	void CreateDialogueDataTableAsset(UDataTable*& OutTable,TArray<FDialogueRow> DialogueRows);
+#endif
 };

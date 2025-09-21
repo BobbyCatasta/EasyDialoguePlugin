@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "DialogueCSVTool.h"
 #include "HttpModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Factories/DataTableFactory.h"
-#include "EditorAssetLibrary.h"
+#include "Engine/DataTable.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Structs/FDialogueRow.h"
+#include "EditorAssetLibrary.h"
+
 
 // Sets default values for this component's properties
 UDialogueCSVTool::UDialogueCSVTool() {}
@@ -17,11 +17,9 @@ void UDialogueCSVTool::PostInitProperties()
 	UObject::PostInitProperties();
 
 	// Set the Data Table to create FDialogueRow Tables
-	
 	// DataTableFactory = NewObject<UDataTableFactory>();
 	// DataTableFactory->Struct = FDialogueRow::StaticStruct();
 }
-
 
 void UDialogueCSVTool::DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL)
 {
@@ -51,6 +49,8 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 	}
 
 	FString CSVContent = UTF8_TO_TCHAR(Response->GetContent().GetData());
+
+	// You can use "END TABLE" in the CSV for separating the Data Table part for design text and other useful text
 	int32 FoundIndex = CSVContent.Find(TEXT("END TABLE"), ESearchCase::IgnoreCase, ESearchDir::FromStart);
 	if (FoundIndex != INDEX_NONE)
 		CSVContent = CSVContent.Left(FoundIndex);
@@ -59,7 +59,8 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 
 	TArray<FDialogueRow> DialogueRows = ParseCSV(CSVContent);
 	UDataTable* DataTable;
-	// To change, not based by AssetName but based on GID of the Table, create a Table Named based on gid
+	
+	// This may change, create a Table Named based on GID ,not based on AssetName
 	CreateDialogueDataTableAsset(DataTable, DialogueRows);
 	
 }
@@ -68,21 +69,21 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 {
 	TArray<FDialogueRow> ParsedRows;
 	TArray<FString> Lines;
-	Content.ParseIntoArrayLines(Lines); // divide per riga
-
+	
+	Content.ParseIntoArrayLines(Lines);
 	if (Lines.Num() <= 1)
 		return ParsedRows;
-
+	
 	// 
 	for (int32 i = 1; i < Lines.Num(); i++)
 	{
 		FString Line = Lines[i];
 
-		// Split delle Celle
+		// Cell splitting
 		TArray<FString> Cells;
 		Line.ParseIntoArray(Cells, TEXT(","), false);
 
-		// Riempimento Riga di Dialogo
+		// Fill Dialogue Row
 		FDialogueRow DialogueRow;
 		
 		DialogueRow.Scene = Cells[0];
@@ -99,11 +100,14 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 
 void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArray<FDialogueRow> DialogueRows)
 {
+	// Checks if the prefix is valid
 	if (!PackagePath.StartsWith(TEXT("/Game")))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR : The package path must start with /Game"));
 		return;
 	}
+
+	// Checks if the name of the asset is valid for creating the Data Table
 	if (DataTableName.IsEmpty())
 	{
 		UE_LOG(LogTemp, Error, TEXT("ERROR : Insert a name for the Data Table"));
@@ -111,11 +115,14 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	}
 	FString PackageName = PackagePath + TEXT("/") + DataTableName;
 	UPackage* Package = CreatePackage(*PackageName);
+	
+	// Checks if the name of the asset is valid for creating the Data Table
 	if (!Package)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ERROR : Error creating the package, try again"));
+		UE_LOG(LogTemp, Error, TEXT("ERROR : Error creating the package, try again"));\
+		return;
 	}
-
+	// Create the object with the FDialogue Struct
 	OutTable = NewObject<UDataTable>(Package, *DataTableName, RF_Public | RF_Standalone);
 	OutTable->RowStruct = FDialogueRow::StaticStruct();
 
@@ -123,20 +130,19 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	{
 		OutTable->AddRow(FName(Row.Scene),Row);
 	}
-	// Registra l’asset nel Content Browser
-	FAssetRegistryModule::AssetCreated(OutTable);
 	
+	// Register the asset in the content browser
+	FAssetRegistryModule::AssetCreated(OutTable);
 	OutTable->MarkPackageDirty();
 
 	FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
-
-	// Check if the asset already exists in the project
+	// Checks if the asset already exists in the project
 	if (UEditorAssetLibrary::DoesAssetExist(FilePath))
 		UEditorAssetLibrary::DeleteAsset(FilePath);
+
 	
 	bool bSaved = UPackage::SavePackage(Package, OutTable, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
 
 	if (bSaved)
 		UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in : %s"), *PackagePath);
 }
-

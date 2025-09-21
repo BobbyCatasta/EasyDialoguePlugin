@@ -17,8 +17,14 @@
 	"Modules": [
 		{
 			"Name": "Dialogue_CSV_Importer",
-			"Type": "Runtime",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
 		}
 	]
 }

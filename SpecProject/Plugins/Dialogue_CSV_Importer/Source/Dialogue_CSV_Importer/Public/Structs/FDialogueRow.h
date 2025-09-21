@@ -13,23 +13,23 @@ struct DIALOGUE_CSV_IMPORTER_API FDialogueRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FString Scene;
+	// Id used for recognizing the unique dialogue
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FString Scene = TEXT("");
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FString Id;
+	// May be removed later
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FString Id = TEXT("");
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FString Speaker;
+	// Name of the Speaker of the dialogue
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FString Speaker = TEXT("");
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FText Dialogue;
+	// Text of the dialogue
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FText Dialogue = FText::GetEmpty();
 
-	// in word per second
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	float TextSpeed;
+	// Speed at which the text is shown, in word per second
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	float TextSpeed = 0.1f;
 };
