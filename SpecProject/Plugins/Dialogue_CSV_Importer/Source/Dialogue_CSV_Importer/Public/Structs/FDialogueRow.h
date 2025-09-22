@@ -15,11 +15,7 @@ struct DIALOGUE_CSV_IMPORTER_API FDialogueRow : public FTableRowBase
 
 	// Id used for recognizing the unique dialogue
 	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
-	FString Scene = TEXT("");
-
-	// May be removed later
-	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
-	FString Id = TEXT("");
+	FName Scene = TEXT("");
 
 	// Name of the Speaker of the dialogue
 	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
@@ -32,4 +28,8 @@ struct DIALOGUE_CSV_IMPORTER_API FDialogueRow : public FTableRowBase
 	// Speed at which the text is shown, in word per second
 	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
 	float TextSpeed = 0.1f;
+
+	//
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FName NextScene = TEXT("");
 };

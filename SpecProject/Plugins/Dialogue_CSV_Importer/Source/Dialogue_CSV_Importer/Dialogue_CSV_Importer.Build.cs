@@ -26,7 +26,6 @@ public class Dialogue_CSV_Importer : ModuleRules
 			new string[]
 			{
 				"Core",
-				"HTTP"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,10 +39,6 @@ public class Dialogue_CSV_Importer : ModuleRules
 				"Slate",
 				"SlateCore",
 				"HTTP",
-				"UnrealEd",
-				"EditorScriptingUtilities",
-				"AssetTools", 
-				"EditorScriptingUtilities",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
