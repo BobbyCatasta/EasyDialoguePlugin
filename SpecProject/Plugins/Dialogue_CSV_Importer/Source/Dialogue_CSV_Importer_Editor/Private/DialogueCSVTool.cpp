@@ -81,8 +81,7 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 		FString Line = Lines[i];
 
 		// Cell splitting
-		TArray<FString> Cells;
-		Line.ParseIntoArray(Cells, TEXT(","), false);
+		TArray<FString> Cells = ParseCSVLine(Lines[i]);
 
 		// Fill Dialogue Row
 		FDialogueRow DialogueRow;
@@ -99,9 +98,46 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 	return ParsedRows;
 }
 
+TArray<FString> UDialogueCSVTool::ParseCSVLine(const FString& Line)
+{
+	TArray<FString> Cells;
+	FString Current;
+	bool bInQuotes = false;
+	
+	for (int32 i = 0; i < Line.Len(); i++)
+	{
+		TCHAR Char = Line[i];
+
+		if (Char == '\"')
+		{
+			if (bInQuotes && i + 1 < Line.Len() && Line[i + 1] == '\"')
+			{
+				Current.AppendChar('\"'); // Quotation marks exception
+				i++; // Skip second mark
+			}
+			else
+			{
+				bInQuotes = !bInQuotes; // Has quotation marks
+			}
+		}
+		else if (Char == ',' && !bInQuotes)
+		{
+			Cells.Add(Current);
+			Current.Empty();
+		}
+		else
+		{
+			Current.AppendChar(Char);
+		}
+	}
+	Cells.Add(Current);
+	return Cells;
+}
+
+
 void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArray<FDialogueRow> DialogueRows)
 {
-	// 1️⃣ Controllo percorso e nome
+	// Check path and name of the asset
 	if (!PackagePath.StartsWith(TEXT("/Game")))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR: The package path must start with /Game"));
@@ -115,17 +151,14 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 
 	FString PackageName = PackagePath + TEXT("/") + DataTableName;
 
-	// 2️⃣ Cancellare asset esistente
+	// Replace existing asset
 	if (UEditorAssetLibrary::DoesAssetExist(PackageName))
 	{
-		if (!UEditorAssetLibrary::DeleteAsset(PackageName))
-		{
-			UE_LOG(LogTemp, Error, TEXT("Cannot delete existing asset: %s"), *PackageName);
-			return;
-		}
+		UObject* LoadedObj = UEditorAssetLibrary::LoadAsset(PackageName);
+		OutTable = Cast<UDataTable>(LoadedObj);
 	}
 
-	// 3️⃣ Creare pacchetto e asset
+	// Create package
 	UPackage* Package = CreatePackage(*PackageName);
 	if (!Package)
 	{
@@ -137,16 +170,14 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	OutTable->RowStruct = FDialogueRow::StaticStruct();
 	OutTable->MarkPackageDirty();
 
-	// 4️⃣ Popolare righe
+	// Fill Table Rows
 	for (const FDialogueRow& Row : DialogueRows)
 	{
 		OutTable->AddRow(FName(Row.Scene), Row);
 	}
-
-	// 5️⃣ Registrare asset nell’Asset Registry
 	FAssetRegistryModule::AssetCreated(OutTable);
 
-	// 6️⃣ Salvare il pacchetto
+	// Save package
 	FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
 	FSavePackageArgs SaveArgs;
 	SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
@@ -159,60 +190,6 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	}
 	else
 	{
-		
 		UE_LOG(LogTemp, Error, TEXT("Failed to save DataTable asset: %s"), *PackageName);
 	}
-	
-	// // Checks if the prefix is valid
-	// if (!PackagePath.StartsWith(TEXT("/Game")))
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("ERROR : The package path must start with /Game"));
-	// 	return;
-	// }
-	//
-	// // Checks if the name of the asset is valid for creating the Data Table
-	// if (DataTableName.IsEmpty())
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("ERROR : Insert a name for the Data Table"));
-	// 	return;
-	// }
-	// FString PackageName = PackagePath + TEXT("/") + DataTableName;
-	// UPackage* Package = CreatePackage(*PackageName);
-	// Package->FullyLoad();
-	//
-	// // Checks if the name of the asset is valid for creating the Data Table
-	// if (!Package)
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("ERROR : Error creating the package, try again"));\
-	// 	return;
-	// }
-	// // Create the object with the FDialogue Struct
-	// OutTable = NewObject<UDataTable>(Package, UDataTable::StaticClass(), *DataTableName, RF_Public | RF_Standalone);
-	// OutTable->MarkPackageDirty();
-	// OutTable->RowStruct = FDialogueRow::StaticStruct();
-	//
-	// for (FDialogueRow Row : DialogueRows)
-	// {
-	// 	OutTable->AddRow(FName(Row.Scene),Row);
-	// }
-	//
-	// // Register the asset in the content browser
-	// FAssetRegistryModule::AssetCreated(OutTable);
-	//
-	//
-	// FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
-	// // Checks if the asset already exists in the project
-	// if (UEditorAssetLibrary::DoesAssetExist(PackageName))
-	// {
-	// 	bool bDeleted = UEditorAssetLibrary::DeleteAsset(PackageName);
-	// 	if (!bDeleted)
-	// 	{
-	// 		UE_LOG(LogTemp, Error, TEXT("Cannot delete existing asset: %s"), *PackageName);
-	// 		return;
-	// 	}
-	// }
-	// bool bSaved = UPackage::SavePackage(Package, OutTable, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
-	//
-	// if (bSaved)
-	// 	UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in : %s"), *PackagePath);
 }

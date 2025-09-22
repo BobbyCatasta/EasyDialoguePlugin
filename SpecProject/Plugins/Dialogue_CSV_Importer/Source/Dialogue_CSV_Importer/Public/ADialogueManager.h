@@ -41,6 +41,9 @@ public:
 private:
 
 	//
+	bool bIsDialogueActive = false;
+
+	//
 	void FindDialogue(FName SceneName);
 	
 	//

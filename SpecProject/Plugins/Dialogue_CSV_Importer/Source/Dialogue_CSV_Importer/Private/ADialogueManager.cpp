@@ -24,12 +24,13 @@ void AADialogueManager::Tick(float DeltaTime)
 
 void AADialogueManager::StartDialogue(FName SceneName)
 {
+	bIsDialogueActive = true;
 	FindDialogue(SceneName);
 }
 
 void AADialogueManager::AdvanceDialogue()
 {
-	if (!CurrentDialogueRow)
+	if (!CurrentDialogueRow && !bIsDialogueActive)
 		return;
 	FindDialogue(CurrentDialogueRow->NextScene);
 }
@@ -47,7 +48,8 @@ void AADialogueManager::FindDialogue(FName SceneName)
 		}
 		if (SceneName == TEXT("") || SceneName == TEXT("END"))
 		{
-			OnDialogueEnd.Broadcast();	
+			OnDialogueEnd.Broadcast();
+			bIsDialogueActive = false;
 			return;
 		}
 		DialogueRow = DataTable->FindRow<FDialogueRow>(SceneName,"Dialogue Row Finder",true);
@@ -58,6 +60,9 @@ void AADialogueManager::FindDialogue(FName SceneName)
 		return;
 	}
 	if (!DialogueRow)
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Dialogue Row %s can't be found in any of the DataTable!"), *SceneName.ToString());
+		bIsDialogueActive = false;
+	}
 }
 

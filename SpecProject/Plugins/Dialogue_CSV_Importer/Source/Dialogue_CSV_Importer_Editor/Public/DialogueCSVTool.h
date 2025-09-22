@@ -40,6 +40,9 @@ private:
 	TArray<FDialogueRow> ParseCSV(const FString& Content);
 
 	//
+	TArray<FString> ParseCSVLine(const FString& Line);
+
+	//
 	void CreateDialogueDataTableAsset(UDataTable*& OutTable,TArray<FDialogueRow> DialogueRows);
 #endif
 };
