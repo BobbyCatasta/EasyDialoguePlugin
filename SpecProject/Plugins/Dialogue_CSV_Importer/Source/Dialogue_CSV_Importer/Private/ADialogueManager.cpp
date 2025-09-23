@@ -55,6 +55,7 @@ void AADialogueManager::FindDialogue(FName SceneName)
 		DialogueRow = DataTable->FindRow<FDialogueRow>(SceneName,"Dialogue Row Finder",true);
 		if (!DialogueRow)
 			continue;
+		DialogueEvent.Broadcast(DialogueRow->EventName);
 		OnDialogueLine.Broadcast(*DialogueRow);
 		CurrentDialogueRow = DialogueRow;
 		return;

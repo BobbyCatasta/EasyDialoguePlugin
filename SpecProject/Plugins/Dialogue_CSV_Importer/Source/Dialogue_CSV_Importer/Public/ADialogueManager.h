@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDialogueLine,const FDialogueRow&,DialogueLine);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDialogueEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDialogueEvent,FName,EventName);
 
 class UDataTable;
 
@@ -60,4 +61,8 @@ private:
 	//
 	UPROPERTY(BlueprintAssignable, Category="Dialogue")
 	FOnDialogueEnd OnDialogueEnd;
+
+	//
+	UPROPERTY(BlueprintAssignable, Category="Dialogue")
+	FDialogueEvent DialogueEvent;
 };

@@ -13,14 +13,6 @@
 // Sets default values for this component's properties
 UDialogueCSVTool::UDialogueCSVTool() {}
 
-void UDialogueCSVTool::PostInitProperties()
-{
-	UObject::PostInitProperties();
-
-	// Set the Data Table to create FDialogueRow Tables
-	// DataTableFactory = NewObject<UDataTableFactory>();
-	// DataTableFactory->Struct = FDialogueRow::StaticStruct();
-}
 
 void UDialogueCSVTool::DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL)
 {
@@ -31,7 +23,16 @@ void UDialogueCSVTool::DownloadCSVAndCreateDataTable(const FString& DataTablePat
 
 	// HTTP Request
 	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
-	Request->SetURL(URL);
+	if (URL.IsEmpty())
+	{
+		Request->SetURL(TEXT("https://docs.google.com/spreadsheets/d/e/2PACX-1vRmH43TxcGmiz4NA44X67RGiCfEb9B553j-qocvUzPU"
+			 "0NwCizhIRZoJFYMt-UuRj9-QhCOhLtLtxBKT/pub?gid=2120350590&single=true&output=csv"));
+		UE_LOG(LogTemp, Display, TEXT("Using example table from Google Docs..."));
+	}
+	else
+	{
+		Request->SetURL(URL);
+	}
 	Request->SetVerb("GET");
 
 	// Add Callback at the end of the request
@@ -45,6 +46,7 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 {
 	if (!bWasSuccessful || !Response.IsValid())
 	{
+		DialogueLogging.Broadcast(TEXT("ERROR : Could not download CSV."),EDialogueLogType::ERROR);
 		UE_LOG(LogTemp, Error, TEXT("ERROR : Could not download CSV."));
 		return;
 	}
@@ -55,7 +57,8 @@ void UDialogueCSVTool::OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr
 	int32 FoundIndex = CSVContent.Find(TEXT("END TABLE"), ESearchCase::IgnoreCase, ESearchDir::FromStart);
 	if (FoundIndex != INDEX_NONE)
 		CSVContent = CSVContent.Left(FoundIndex);
-	
+
+	DialogueLogging.Broadcast(TEXT("CSV downloaded correctly. Now Creating Data Table..."),EDialogueLogType::LOG);
 	UE_LOG(LogTemp, Log, TEXT("CSV downloaded correctly. Now Creating Data Table..."));
 
 	TArray<FDialogueRow> DialogueRows = ParseCSV(CSVContent);
@@ -89,8 +92,14 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 		DialogueRow.Scene = FName(Cells[0]);
 		DialogueRow.Speaker = Cells[1];
 		DialogueRow.Dialogue = FText::FromString(Cells[2]);
+		if (!Cells[3].IsNumeric())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The Dialogue %s has been skipped because of a non valid float."),*DialogueRow.Scene.ToString());
+			continue;
+		}
 		DialogueRow.TextSpeed = FCString::Atof(*Cells[3]);
 		DialogueRow.NextScene = FName(Cells[4]);
+		DialogueRow.EventName = FName(Cells[5]);
 		
 		ParsedRows.Add(DialogueRow);
 	}
@@ -138,15 +147,15 @@ TArray<FString> UDialogueCSVTool::ParseCSVLine(const FString& Line)
 void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArray<FDialogueRow> DialogueRows)
 {
 	// Check path and name of the asset
-	if (!PackagePath.StartsWith(TEXT("/Game")))
+	if (PackagePath.IsEmpty())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ERROR: The package path must start with /Game"));
-		return;
+	    PackagePath = TEXT("/Game/DialogueDataTables");
+	    UE_LOG(LogTemp, Log, TEXT("Using default path for saving data table..."));
 	}
 	if (DataTableName.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("ERROR: Insert a name for the Data Table"));
-		return;
+	    DataTableName = TEXT("NewDialogueDataTable");
+	    UE_LOG(LogTemp, Log, TEXT("Using default name for asset..."));
 	}
 
 	FString PackageName = PackagePath + TEXT("/") + DataTableName;
@@ -154,16 +163,17 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	// Replace existing asset
 	if (UEditorAssetLibrary::DoesAssetExist(PackageName))
 	{
-		UObject* LoadedObj = UEditorAssetLibrary::LoadAsset(PackageName);
-		OutTable = Cast<UDataTable>(LoadedObj);
+	    UObject* LoadedObj = UEditorAssetLibrary::LoadAsset(PackageName);
+	    OutTable = Cast<UDataTable>(LoadedObj);
 	}
 
 	// Create package
 	UPackage* Package = CreatePackage(*PackageName);
 	if (!Package)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ERROR: Could not create package"));
-		return;
+	    DialogueLogging.Broadcast(TEXT("ERROR: Could not create package. Please retry."), EDialogueLogType::ERROR);
+	    UE_LOG(LogTemp, Error, TEXT("ERROR: Could not create package. Please retry."));
+	    return;
 	}
 
 	OutTable = NewObject<UDataTable>(Package, UDataTable::StaticClass(), *DataTableName, RF_Public | RF_Standalone);
@@ -173,12 +183,26 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	// Fill Table Rows
 	for (const FDialogueRow& Row : DialogueRows)
 	{
-		OutTable->AddRow(FName(Row.Scene), Row);
+	    OutTable->AddRow(FName(Row.Scene), Row);
 	}
 	FAssetRegistryModule::AssetCreated(OutTable);
 
 	// Save package
 	FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+	FString FolderPath = FPaths::GetPath(FilePath);
+
+	// Create folder if it doesn't exist
+	if (!IFileManager::Get().DirectoryExists(*FolderPath))
+	{
+	    if (!IFileManager::Get().MakeDirectory(*FolderPath, true))
+	    {
+	        DialogueLogging.Broadcast(TEXT("ERROR : Failed to create directory on disk"), EDialogueLogType::ERROR);
+	        UE_LOG(LogTemp, Error, TEXT("ERROR : Failed to create directory on disk: %s"), *FolderPath);
+	        return;
+	    }
+	    UE_LOG(LogTemp, Log, TEXT("Created directory: %s"), *FolderPath);
+	}
+
 	FSavePackageArgs SaveArgs;
 	SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
 	SaveArgs.SaveFlags = SAVE_NoError;
@@ -186,10 +210,12 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	bool bSaved = UPackage::SavePackage(Package, OutTable, *FilePath, SaveArgs);
 	if (bSaved)
 	{
-		UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in: %s"), *PackageName);
+	    DialogueLogging.Broadcast(FString::Printf(TEXT("DataTable saved as asset in : \n%s"),*PackageName), EDialogueLogType::DONE);
+	    UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in: %s"), *PackageName);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to save DataTable asset: %s"), *PackageName);
+	    DialogueLogging.Broadcast(TEXT("Failed to create and save DataTable asset"), EDialogueLogType::ERROR);
+	    UE_LOG(LogTemp, Error, TEXT("Failed to save DataTable asset: %s"), *PackageName);
 	}
 }

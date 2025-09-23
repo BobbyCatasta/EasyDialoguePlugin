@@ -32,4 +32,8 @@ struct DIALOGUE_CSV_IMPORTER_API FDialogueRow : public FTableRowBase
 	//
 	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
 	FName NextScene = TEXT("");
+
+	//
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	FName EventName = TEXT("");
 };

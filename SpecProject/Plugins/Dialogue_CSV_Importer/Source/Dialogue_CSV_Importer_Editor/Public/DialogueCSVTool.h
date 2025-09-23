@@ -9,6 +9,19 @@
 
 struct FDialogueRow;
 
+
+UENUM(BlueprintType)
+enum class EDialogueLogType : uint8
+{
+	LOG			UMETA(DisplayName="LOG"),
+	DONE		UMETA(DisplayName="DONE"),
+	ERROR		UMETA(DisplayName="ERROR"),
+	WARNING		UMETA(DisplayName="WARNING"),
+};
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDialogueLog,FString,MessageLog,EDialogueLogType,DialogueLogType);
+
 UCLASS(BlueprintType,Blueprintable)
 class DIALOGUE_CSV_IMPORTER_EDITOR_API UDialogueCSVTool : public UObject
 {	
@@ -18,7 +31,8 @@ public:
 	// Sets default values for this component's properties
 	UDialogueCSVTool();
 
-	virtual void PostInitProperties() override;
+	UPROPERTY(BlueprintAssignable,Category="Dialogue")
+	FDialogueLog DialogueLogging;
 
 private:
 
