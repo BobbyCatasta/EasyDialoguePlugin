@@ -29,11 +29,11 @@ struct DIALOGUE_CSV_IMPORTER_API FDialogueRow : public FTableRowBase
 	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
 	float TextSpeed = 0.1f;
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	// Name of the next scene to be played after this dialogue entry
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Dialogue_CSV_DataTable")
 	FName NextScene = TEXT("");
 
-	//
-	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Dialogue_CSV_DataTable")
+	// Optional event name triggered when this dialogue entry is reached
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Dialogue_CSV_DataTable")
 	FName EventName = TEXT("");
 };

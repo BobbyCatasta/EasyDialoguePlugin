@@ -36,27 +36,27 @@ public:
 
 private:
 
-	//
+	// Name of the DataTable asset to be created
 	FString DataTableName;
 
-	//
+	// Target folder path (inside the Unreal project) where the DataTable will be stored
 	FString PackagePath;
 
 #if WITH_EDITOR
-	//
-	UFUNCTION(BlueprintCallable,CallInEditor, Category = "DataTable Creation")
+	// Downloads a CSV from a given URL and creates a DataTable asset
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "DataTable Creation")
 	void DownloadCSVAndCreateDataTable(const FString& DataTablePath, const FString& AssetName, const FString& URL);
 
-	//
+	// Callback triggered once the CSV file has been downloaded
 	void OnCSVDownloaded(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-	//
+	// Parses the entire CSV file content into an array of dialogue rows
 	TArray<FDialogueRow> ParseCSV(const FString& Content);
 
-	//
+	// Parses a single CSV line into an array of string cells
 	TArray<FString> ParseCSVLine(const FString& Line);
 
-	//
-	void CreateDialogueDataTableAsset(UDataTable*& OutTable,TArray<FDialogueRow> DialogueRows);
+	// Creates a DataTable asset in the Content Browser from parsed dialogue rows
+	void CreateDialogueDataTableAsset(UDataTable*& OutTable, TArray<FDialogueRow> DialogueRows);
 #endif
 };

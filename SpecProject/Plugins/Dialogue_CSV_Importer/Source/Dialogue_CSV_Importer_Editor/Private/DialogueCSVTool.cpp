@@ -111,35 +111,43 @@ TArray<FString> UDialogueCSVTool::ParseCSVLine(const FString& Line)
 {
 	TArray<FString> Cells;
 	FString Current;
-	bool bInQuotes = false;
-	
+	bool bInQuotes = false; // Tracks whether we are inside quotation marks
+
 	for (int32 i = 0; i < Line.Len(); i++)
 	{
 		TCHAR Char = Line[i];
 
 		if (Char == '\"')
 		{
+			// Handle quotes
 			if (bInQuotes && i + 1 < Line.Len() && Line[i + 1] == '\"')
 			{
-				Current.AppendChar('\"'); // Quotation marks exception
-				i++; // Skip second mark
+				// Escaped quotes inside a quoted field
+				Current.AppendChar('\"');
+				i++; // Skip the second quote
 			}
 			else
 			{
-				bInQuotes = !bInQuotes; // Has quotation marks
+				// Entering or exiting quoted section
+				bInQuotes = !bInQuotes;
 			}
 		}
 		else if (Char == ',' && !bInQuotes)
 		{
+			// Comma found outside quotes
 			Cells.Add(Current);
 			Current.Empty();
 		}
 		else
 		{
+			// Normal character 
 			Current.AppendChar(Char);
 		}
 	}
+
+	// Add the last cell
 	Cells.Add(Current);
+
 	return Cells;
 }
 
@@ -149,25 +157,27 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	// Check path and name of the asset
 	if (PackagePath.IsEmpty())
 	{
+	    // If no path is provided, use a default path inside /Game
 	    PackagePath = TEXT("/Game/DialogueDataTables");
 	    UE_LOG(LogTemp, Log, TEXT("Using default path for saving data table..."));
 	}
 	if (DataTableName.IsEmpty())
 	{
+	    // If no name is provided, use a default name for the asset
 	    DataTableName = TEXT("NewDialogueDataTable");
 	    UE_LOG(LogTemp, Log, TEXT("Using default name for asset..."));
 	}
 
 	FString PackageName = PackagePath + TEXT("/") + DataTableName;
 
-	// Replace existing asset
+	// Replace existing asset (if it already exists in the Content Browser)
 	if (UEditorAssetLibrary::DoesAssetExist(PackageName))
 	{
 	    UObject* LoadedObj = UEditorAssetLibrary::LoadAsset(PackageName);
 	    OutTable = Cast<UDataTable>(LoadedObj);
 	}
 
-	// Create package
+	// Create a new package for the DataTable
 	UPackage* Package = CreatePackage(*PackageName);
 	if (!Package)
 	{
@@ -176,22 +186,24 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	    return;
 	}
 
+	// Create the DataTable object inside the package
 	OutTable = NewObject<UDataTable>(Package, UDataTable::StaticClass(), *DataTableName, RF_Public | RF_Standalone);
-	OutTable->RowStruct = FDialogueRow::StaticStruct();
-	OutTable->MarkPackageDirty();
+	OutTable->RowStruct = FDialogueRow::StaticStruct(); // Bind our custom row struct
+	OutTable->MarkPackageDirty(); // Mark package as modified (so Unreal knows it needs saving)
 
-	// Fill Table Rows
+	// Fill the DataTable with parsed rows from the CSV
 	for (const FDialogueRow& Row : DialogueRows)
 	{
 	    OutTable->AddRow(FName(Row.Scene), Row);
 	}
+	// Notify the AssetRegistry so the new asset appears in the Content Browser
 	FAssetRegistryModule::AssetCreated(OutTable);
 
-	// Save package
+	// Convert package name into a physical file path
 	FString FilePath = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
 	FString FolderPath = FPaths::GetPath(FilePath);
 
-	// Create folder if it doesn't exist
+	// Ensure that the folder exists on disk, otherwise create it
 	if (!IFileManager::Get().DirectoryExists(*FolderPath))
 	{
 	    if (!IFileManager::Get().MakeDirectory(*FolderPath, true))
@@ -203,10 +215,12 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	    UE_LOG(LogTemp, Log, TEXT("Created directory: %s"), *FolderPath);
 	}
 
+	// Prepare save arguments for UPackage::SavePackage
 	FSavePackageArgs SaveArgs;
 	SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
 	SaveArgs.SaveFlags = SAVE_NoError;
 
+	// Save the package to disk as a .uasset file
 	bool bSaved = UPackage::SavePackage(Package, OutTable, *FilePath, SaveArgs);
 	if (bSaved)
 	{
