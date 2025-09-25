@@ -6,9 +6,9 @@
 			"Dialogue_CSV_Importer.init.gen.cpp.obj",
 			"FDialogueRow.gen.cpp.obj",
 			"PerModuleInline.gen.cpp.obj",
+			"ADialogueManager.cpp.obj",
 			"Dialogue_CSV_Importer.cpp.obj",
-			"FDialogueRow.cpp.obj",
-			"ADialogueManager.cpp.obj"
+			"FDialogueRow.cpp.obj"
 		]
 	}
 }
