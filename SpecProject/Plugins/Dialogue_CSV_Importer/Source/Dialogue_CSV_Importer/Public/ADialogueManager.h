@@ -30,39 +30,39 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	//
+	// Start a dialogue sequence at the given scene
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void StartDialogue(FName SceneName);
 
-	//
+	// Advance the dialogue to the next scene/line
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void AdvanceDialogue();
 
 	
-private:
+protected:
 
-	//
+	// Keeps track of whether a dialogue sequence is currently active
 	bool bIsDialogueActive = false;
 
-	//
+	// Internal function to find and process a dialogue row by scene name
 	void FindDialogue(FName SceneName);
 	
-	//
+	// List of DataTables containing dialogue rows that can be searched
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	TArray<UDataTable*> DialogueDataTables;
 
-	//
+	// Pointer to the currently active dialogue row
 	FDialogueRow* CurrentDialogueRow;
 	
-	//
+	// Event triggered whenever a dialogue line needs to be displayed
 	UPROPERTY(BlueprintAssignable, Category="Dialogue")
 	FOnDialogueLine OnDialogueLine;
 
-	//
+	// Event triggered when a dialogue sequence ends
 	UPROPERTY(BlueprintAssignable, Category="Dialogue")
 	FOnDialogueEnd OnDialogueEnd;
 
-	//
+	// Event triggered when a dialogue row requests a gameplay-related event
 	UPROPERTY(BlueprintAssignable, Category="Dialogue")
 	FDialogueEvent DialogueEvent;
 };

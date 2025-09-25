@@ -34,7 +34,7 @@ public:
 	UPROPERTY(BlueprintAssignable,Category="Dialogue")
 	FDialogueLog DialogueLogging;
 
-private:
+protected:
 
 	// Name of the DataTable asset to be created
 	FString DataTableName;

@@ -94,10 +94,12 @@ TArray<FDialogueRow> UDialogueCSVTool::ParseCSV(const FString& Content)
 		DialogueRow.Dialogue = FText::FromString(Cells[2]);
 		if (!Cells[3].IsNumeric())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("The Dialogue %s has been skipped because of a non valid float."),*DialogueRow.Scene.ToString());
-			continue;
+			UE_LOG(LogTemp, Warning, TEXT("The Dialogue %s has a non valid float. Using default value..."),*DialogueRow.Scene.ToString());
 		}
-		DialogueRow.TextSpeed = FCString::Atof(*Cells[3]);
+		else
+		{
+			DialogueRow.TextSpeed = FCString::Atof(*Cells[3]);
+		}
 		DialogueRow.NextScene = FName(Cells[4]);
 		DialogueRow.EventName = FName(Cells[5]);
 		
@@ -224,7 +226,7 @@ void UDialogueCSVTool::CreateDialogueDataTableAsset(UDataTable*& OutTable, TArra
 	bool bSaved = UPackage::SavePackage(Package, OutTable, *FilePath, SaveArgs);
 	if (bSaved)
 	{
-	    DialogueLogging.Broadcast(FString::Printf(TEXT("DataTable saved as asset in : \n%s"),*PackageName), EDialogueLogType::DONE);
+	    DialogueLogging.Broadcast(FString::Printf(TEXT("DataTable saved as asset in : \n\n%s"),*PackageName), EDialogueLogType::DONE);
 	    UE_LOG(LogTemp, Log, TEXT("DataTable saved as asset in: %s"), *PackageName);
 	}
 	else
