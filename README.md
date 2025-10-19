@@ -59,6 +59,10 @@ Each dialogue line is represented by a row in the CSV file with the following fi
 - Uses event-driven logic.
 > ⚠️ Requires the **Dialogue Manager Actor** in the level.
 
+### 🏔️ Level Testing and Blueprint-Function Library
+- Test the pre-made level for a deeper understanding of the plugin.
+- A public BFL is implemented in order to make the DialogueManager acessible everywhere.
+  
 ---
 
 ## 🔮 Future Updates
