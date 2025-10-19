@@ -1,8 +1,0 @@
-{
-	"BuildId": "37670630",
-	"Modules": 
-	{
-		"Dialogue_CSV_Importer": "UnrealEditor-Dialogue_CSV_Importer.dll",
-		"Dialogue_CSV_Importer_Editor": "UnrealEditor-Dialogue_CSV_Importer_Editor.dll"
-	}
-}
