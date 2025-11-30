@@ -87,7 +87,7 @@ Project: *Specialization Project – Event Horizon School*
 ## 📄 License
 
 This project is open for educational and personal use.  
-Feel free to explore, modify, and learn from it — attribution appreciated.
+Feel free to explore, modify, and learn from it.
 
 ---
 
