@@ -1,6 +1,6 @@
 # 🎙️ Easy Dialogue Plugin (+ CSV Importer)
 
-A lightweight and easy-to-use **Dialogue System** for Unreal Engine 5, designed to be flexible, data-driven, and easy to integrate into any project.  
+A lightweight and easy-to-use **Dialogue System** for Unreal Engine 5, designed to be flexible, data-driven and easy to integrate into any project.  
 Developed as part of my **Specialization Project** at *Event Horizon School*.
 
 ---
@@ -8,9 +8,9 @@ Developed as part of my **Specialization Project** at *Event Horizon School*.
 ## 🧩 Overview
 
 The **Easy Dialogue Plugin** allows developers to quickly set up dialogue systems using external CSV files and Unreal Engine's DataTables.  
-It provides a simple yet powerful workflow for importing dialogue data, managing dialogue flow, and triggering in-game events.
+It provides a simple yet powerful workflow for importing dialogue data, managing dialogue flow and triggering in-game events.
 
-> 💡 Designed for readability, modularity, and learning — with commented C++ and Blueprint-compatible systems.
+> 💡 Designed for readability and modularity in mind — with commented C++ and Blueprint-compatible systems.
 
 ---
 
